@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tiger Talkboy Deluxe – Web Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top left, #4b5563 0, transparent 55%),
+        radial-gradient(circle at bottom right, #020617 0, #000000 60%);
+      padding: 16px;
+    }
+
+    .talkboy-shell {
+      position: relative;
+      max-width: 640px;
+      width: 100%;
+      background: linear-gradient(145deg, #d1d5db, #9ca3af);
+      border-radius: 32px;
+      padding: 18px 18px 16px;
+      box-shadow:
+        0 30px 50px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      overflow: hidden;
+    }
+
+    .talkboy-shell::before,
+    .talkboy-shell::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.7);
+      box-shadow:
+        inset 0 0 0 1px rgba(209, 213, 219, 0.7),
+        0 1px 2px rgba(0, 0, 0, 0.6);
+      background: radial-gradient(circle, #9ca3af 0, #4b5563 65%, #111827 100%);
+      top: 12px;
+    }
+    .talkboy-shell::before {
+      left: 14px;
+    }
+    .talkboy-shell::after {
+      right: 14px;
+    }
+
+    .top-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .badge-left {
+      font-size: 0.65rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: linear-gradient(135deg, #111827, #4b5563);
+      color: #e5e7eb;
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.9);
+    }
+
+    .battery-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #374151;
+    }
+
+    .battery-label span {
+      font-weight: 700;
+    }
+
+    .device-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 640px) {
+      .device-body {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .cassette-panel {
+      position: relative;
+      background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+      border-radius: 22px;
+      padding: 10px 12px 12px;
+      box-shadow:
+        inset 0 0 0 1px rgba(148, 163, 184, 0.9),
+        inset 0 2px 0 rgba(255, 255, 255, 0.7),
+        inset 0 -2px 4px rgba(55, 65, 81, 0.6);
+    }
+
+    .cassette-window {
+      position: relative;
+      background: radial-gradient(circle at top, #111827, #020617);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow:
+        inset 0 0 0 1px rgba(31, 41, 55, 0.9),
+        inset 0 12px 26px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    .cassette-reels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0.85;
+    }
+
+    .reel {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 2px solid rgba(75, 85, 99, 0.9);
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 0.9),
+        0 0 10px rgba(0, 0, 0, 0.9);
+      position: relative;
+    }
+
+    .reel::before,
+    .reel::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+    }
+
+    .reel::before {
+      inset: 6px;
+      border: 2px solid rgba(148, 163, 184, 0.9);
+    }
+    .reel::after {
+      inset: 14px;
+      background: radial-gradient(circle, #f9fafb 0, #d1d5db 40%, #111827 100%);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .tape-strip {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #4b5563, #f9fafb, #4b5563);
+      box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+    }
+
+    .logo-area {
+      position: absolute;
+      left: 18px;
+      bottom: 12px;
+      transform: skewX(-10deg);
+    }
+
+    .logo-main {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #0f172a;
+      text-shadow:
+        -1px -1px 0 #e5e7eb,
+        1px 1px 0 #4b5563;
+    }
+
+    .logo-sub {
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #4c1d95;
+    }
+
+    .mode-switch-panel {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 640px) {
+      .mode-switch-panel {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .mode-group-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #4b5563;
+      margin-bottom: 4px;
+    }
+
+    .mode-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mode-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      cursor: pointer;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, #111827, #4b5563);
+      color: #e5e7eb;
+      user-select: none;
+      transition: transform 0.06s ease, box-shadow 0.1s ease, border-color 0.12s ease;
+    }
+
+    .mode-pill input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mode-pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.7);
+      background: transparent;
+    }
+
+    .mode-pill[data-selected="true"] {
+      border-color: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .mode-pill[data-selected="true"] .dot {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .mode-pill small {
+      font-size: 0.55rem;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+    }
+
+    .status-lamp {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .lamp-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #4b5563;
+      box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+    }
+
+    .lamp-dot.recording {
+      background: #ef4444;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 1);
+    }
+
+    .lamp-text {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #374151;
+    }
+
+    .control-panel {
+      background: linear-gradient(135deg, #020617, #111827);
+      border-radius: 22px;
+      padding: 12px;
+      color: #e5e7eb;
+      box-shadow:
+        inset 0 0 0 1px rgba(31, 41, 55, 0.9),
+        0 10px 30px rgba(0, 0, 0, 0.9);
+      position: relative;
+    }
+
+    .control-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .dialogue-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 76px;
+      border-radius: 14px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: radial-gradient(circle at top, #020617, #030712);
+      color: #e5e7eb;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      resize: vertical;
+      outline: none;
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.9);
+    }
+
+    textarea::placeholder {
+      color: #4b5563;
+    }
+
+    textarea:focus {
+      border-color: #22c55e;
+      box-shadow:
+        inset 0 0 18px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(34, 197, 94, 0.8);
+    }
+
+    .pitch-row {
+      margin-top: 10px;
+    }
+
+    .pitch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .pitch-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #6b7280;
+    }
+
+    .pitch-value {
+      font-size: 0.7rem;
+      color: #e5e7eb;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #4b5563, #22c55e, #4b5563);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #a855f7;
+      border: 1px solid #f9fafb;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.9);
+      cursor: pointer;
+      margin-top: -6px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #a855f7;
+      border: 1px solid #f9fafb;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.9);
+      cursor: pointer;
+    }
+
+    .button-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: 1px solid rgba(31, 41, 55, 1);
+      background: linear-gradient(135deg, #4c1d95, #1d1b7a);
+      color: #f9fafb;
+      padding: 7px 12px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      box-shadow:
+        0 8px 18px rgba(8, 7, 46, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: transform 0.06s ease, box-shadow 0.1s ease, filter 0.1s ease, opacity 0.1s ease;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      border-color: #15803d;
+      box-shadow:
+        0 10px 22px rgba(22, 163, 74, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    button.secondary {
+      background: linear-gradient(135deg, #111827, #374151);
+      border-color: #111827;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button:hover:not(:disabled) {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.9);
+    }
+
+    button .icon {
+      font-size: 0.9rem;
+    }
+
+    .note-row {
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .bottom-strip {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #4b5563;
+    }
+
+    .download-link {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #1d4ed8;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(59, 130, 246, 0.8);
+      padding-bottom: 1px;
+      white-space: nowrap;
+    }
+
+    .download-link:hover {
+      color: #93c5fd;
+      border-bottom-style: solid;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 480px) {
+      .talkboy-shell {
+        padding: 14px 12px 12px;
+        border-radius: 26px;
+      }
+      button {
+        flex: 1 1 45%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="talkboy-shell">
+    <div class="top-strip">
+      <div class="badge-left">Portable Voice Recorder</div>
+      <div class="battery-label">Power: <span>4×AA</span></div>
+    </div>
+
+    <div class="device-body">
+      <!-- LEFT: Cassette + Modes -->
+      <div class="cassette-panel">
+        <div class="cassette-window">
+          <div class="cassette-reels">
+            <div class="reel"></div>
+            <div class="reel"></div>
+          </div>
+          <div class="tape-strip"></div>
+
+          <div class="logo-area">
+            <div class="logo-main">Tiger Talkbox</div>
+            <div class="logo-sub">Deluxe Web</div>
+          </div>
+        </div>
+
+        <div class="mode-switch-panel">
+          <div>
+            <div class="mode-group-title">Tape Speed / Scene Presets</div>
+            <div class="mode-group" id="modeGroup">
+              <label class="mode-pill" data-mode="normal" data-selected="true">
+                <input type="radio" name="mode" value="normal" checked />
+                <div class="dot"></div>
+                <span>Normal</span>
+              </label>
+              <label class="mode-pill" data-mode="slow">
+                <input type="radio" name="mode" value="slow" />
+                <div class="dot"></div>
+                <span>Slow</span><small>Deep</small>
+              </label>
+              <label class="mode-pill" data-mode="fast">
+                <input type="radio" name="mode" value="fast" />
+                <div class="dot"></div>
+                <span>Fast</span><small>Chipmunk</small>
+              </label>
+              <label class="mode-pill" data-mode="homealone">
+                <input type="radio" name="mode" value="homealone" />
+                <div class="dot"></div>
+                <span>Home Alone</span><small>“Credit card?”</small>
+              </label>
+            </div>
+          </div>
+
+          <div class="status-lamp">
+            <div id="statusLamp" class="lamp-dot"></div>
+            <div class="lamp-text" id="statusText">Idle</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Controls -->
+      <div class="control-panel">
+        <div class="control-title">Dialogue Console</div>
+        <div class="dialogue-label">Typed Line</div>
+        <textarea id="scriptText" placeholder="&quot;Credit card? You got it.&quot;"></textarea>
+
+        <div class="pitch-row">
+          <div class="pitch-header">
+            <div class="pitch-label">Pitch Bend (Tape Trick)</div>
+            <div class="pitch-value" id="pitchReadout">0 st</div>
+          </div>
+          <input id="pitchSlider" type="range" min="-12" max="6" step="0.5" value="0" />
+        </div>
+
+        <div class="button-row">
+          <button id="playTextBtn" class="primary">
+            <span class="icon">▶</span>
+            <span>Play Typed Line</span>
+          </button>
+          <button id="stopTTSBtn" class="secondary">
+            <span class="icon">⏹</span>
+            <span>Stop Voice</span>
+          </button>
+        </div>
+
+        <div class="button-row">
+          <button id="recordBtn" class="secondary">
+            <span class="icon">⏺</span>
+            <span id="recordLabel">Record</span>
+          </button>
+          <button id="playRecordingBtn" class="primary" disabled>
+            <span class="icon">▶</span>
+            <span>Play Recording</span>
+          </button>
+        </div>
+
+        <div class="note-row">
+          • <strong>Modes</strong> use tape-style speeds:
+          Normal = 1.0×, Slow = 0.76×, Fast ≈ 1.3×, Home Alone = tuned Slow.  
+          • <strong>Pitch Bend</strong> adjusts speed like a virtual tape capstan (±12 semitones total with mode offsets).
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-strip">
+      <span>Mono · Voice Band 300–3400 Hz (Approx)</span>
+      <a id="downloadLink" class="download-link hidden" href="#" download="talkboy-recording.webm">
+        Download Recording
+      </a>
+    </div>
+
+    <audio id="playbackAudio" class="hidden"></audio>
+  </div>
+
+  <script>
+    // --- Mode + Pitch utilities ----------------------------------------
+    const MODE_BASE_RATE = {
+      normal: 1.0,      // 4.76 cm/s
+      slow: 0.76,       // ~76% of normal (deep)
+      fast: 1.30,       // effective fast-voice trick
+      homealone: 0.76   // same tape speed as slow
+    };
+
+    // Built-in pitch offsets per mode (in semitones)
+    // Home Alone is deliberately extra deep.
+    const MODE_BASE_SEMITONES = {
+      normal: 0,
+      slow: -4,        // noticeably deeper
+      fast: +3,        // brighter
+      homealone: -6    // very deep, closer to movie gag
+    };
+
+    const modeGroup = document.getElementById("modeGroup");
+    const pitchSlider = document.getElementById("pitchSlider");
+    const pitchReadout = document.getElementById("pitchReadout");
+
+    function getCurrentMode() {
+      const checked = document.querySelector('input[name="mode"]:checked');
+      return checked ? checked.value : "normal";
+    }
+
+    function getPitchSemitones() {
+      const v = parseFloat(pitchSlider.value);
+      return isNaN(v) ? 0 : v;
+    }
+
+    function getTotalSemitoneShift() {
+      const mode = getCurrentMode();
+      const slider = getPitchSemitones();
+      const base = MODE_BASE_SEMITONES[mode] ?? 0;
+      return slider + base;
+    }
+
+    function getPitchFactorFromSemitones(n) {
+      // 2^(n/12) = semitone to speed/ratio conversion
+      return Math.pow(2, n / 12);
+    }
+
+    function updatePitchReadout() {
+      const semis = getPitchSemitones();
+      pitchReadout.textContent = `${semis > 0 ? "+" : ""}${semis} st`;
+    }
+
+    updatePitchReadout();
+    pitchSlider.addEventListener("input", updatePitchReadout);
+
+    // Mode pill toggle
+    modeGroup.addEventListener("click", (e) => {
+      const pill = e.target.closest(".mode-pill");
+      if (!pill) return;
+      const mode = pill.getAttribute("data-mode");
+      const input = pill.querySelector('input[name="mode"]');
+      if (input) input.checked = true;
+
+      document.querySelectorAll(".mode-pill").forEach((el) => {
+        el.setAttribute("data-selected", el === pill ? "true" : "false");
+      });
+
+      // If user picks Home Alone and the textarea is empty, auto-suggest the famous line
+      const scriptText = document.getElementById("scriptText");
+      if (mode === "homealone" && !scriptText.value.trim()) {
+        scriptText.value = '"Credit card? You got it."';
+      }
+    });
+
+    // --- Typed Text → TTS ----------------------------------------------
+    const playTextBtn = document.getElementById("playTextBtn");
+    const stopTTSBtn = document.getElementById("stopTTSBtn");
+    const scriptText = document.getElementById("scriptText");
+
+    playTextBtn.addEventListener("click", () => {
+      const text = scriptText.value.trim();
+      if (!text) {
+        alert("Type a line first.");
+        return;
+      }
+      if (!("speechSynthesis" in window)) {
+        alert("Speech synthesis is not supported in this browser.");
+        return;
+      }
+
+      // Kill any existing speech
+      window.speechSynthesis.cancel();
+
+      const mode = getCurrentMode();
+      const baseRate = MODE_BASE_RATE[mode] ?? 1.0;
+
+      // Total semitone shift = mode offset + slider bend
+      const totalSemis = getTotalSemitoneShift();
+      const speedFactor = getPitchFactorFromSemitones(totalSemis);
+
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      // Tape-speed behaviour: base tape speed * semitone-based factor
+      utterance.rate = baseRate * speedFactor;
+
+      // Map semitones to Web Speech pitch [0.5, 2].
+      // Using a milder curve so it doesn't go completely broken.
+      let pitch = Math.pow(2, totalSemis / 24); // half-strength vs speed
+      pitch = Math.max(0.5, Math.min(2.0, pitch));
+      utterance.pitch = pitch;
+
+      window.speechSynthesis.speak(utterance);
+    });
+
+    stopTTSBtn.addEventListener("click", () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    // --- Recording + Playback ------------------------------------------
+    const recordBtn = document.getElementById("recordBtn");
+    const recordLabel = document.getElementById("recordLabel");
+    const playRecordingBtn = document.getElementById("playRecordingBtn");
+    const playbackAudio = document.getElementById("playbackAudio");
+    const statusLamp = document.getElementById("statusLamp");
+    const statusText = document.getElementById("statusText");
+    const downloadLink = document.getElementById("downloadLink");
+
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let audioUrl = null;
+
+    function setStatus(text, isRecording = false) {
+      statusText.textContent = text;
+      if (isRecording) {
+        statusLamp.classList.add("recording");
+      } else {
+        statusLamp.classList.remove("recording");
+      }
+    }
+
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("Microphone recording is not supported in this browser.");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          if (audioUrl) URL.revokeObjectURL(audioUrl);
+          audioUrl = URL.createObjectURL(blob);
+          playbackAudio.src = audioUrl;
+
+          downloadLink.href = audioUrl;
+          downloadLink.classList.remove("hidden");
+
+          // Stop tracks
+          stream.getTracks().forEach((t) => t.stop());
+
+          playRecordingBtn.disabled = false;
+          recordLabel.textContent = "Record";
+          setStatus("Recording saved");
+        };
+
+        mediaRecorder.start();
+        setStatus("Recording…", true);
+        recordLabel.textContent = "Stop";
+      } catch (err) {
+        console.error("Error accessing microphone:", err);
+        alert("Could not access microphone.");
+        setStatus("Idle");
+        recordLabel.textContent = "Record";
+      }
+    }
+
+    recordBtn.addEventListener("click", () => {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        return;
+      }
+      startRecording();
+    });
+
+    playRecordingBtn.addEventListener("click", () => {
+      if (!audioUrl) {
+        alert("No recording yet.");
+        return;
+      }
+      const mode = getCurrentMode();
+      const baseRate = MODE_BASE_RATE[mode] ?? 1.0;
+      const totalSemis = getTotalSemitoneShift();
+      const speedFactor = getPitchFactorFromSemitones(totalSemis);
+
+      // For real audio we behave like a tape:
+      // playbackRate = tape speed * semitone factor.
+      playbackAudio.playbackRate = baseRate * speedFactor;
+
+      playbackAudio.pause();
+      playbackAudio.currentTime = 0;
+      playbackAudio.play().catch((err) => {
+        console.error("Playback error:", err);
+      });
+    });
+  </script>
+</body>
+</html>
